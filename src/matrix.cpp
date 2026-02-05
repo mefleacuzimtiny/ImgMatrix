@@ -6,15 +6,22 @@
 #include <stdexcept>
 #include "../include/matrix.h"
 
+// Default
+template <typename T>
+Matrix<T>::Matrix() : rows(1), cols(1) {
+	contents = new T[1][1];
+	contents = { 0 };
+}
+
 // Constructor
 template <typename T>
 Matrix<T>::Matrix(int r, int c) : rows(r), cols(c) {
 	if (rows <= 0 || cols <= 0)
-		throw std::invalid_argument("Matrix dimensions must be positive");
-	contents = new T[rows * cols]{};
+		throw std::invalid_argument("Matrix dimensions must be non zero and positive");
+	contents = new T[rows * cols] { 0 };
 }
 
-// Copy constructor
+// Copy
 template <typename T>
 Matrix<T>::Matrix(const Matrix<T>& other) : rows(other.rows), cols(other.cols) {
 	contents = new T[rows * cols];
@@ -33,14 +40,16 @@ template <typename T>
 T& Matrix<T>::operator()(int i, int j) {
 	if (i < 0 || i >= rows || j < 0 || j >= cols)
 		throw std::out_of_range("Index out of range");
-	return contents[i * cols + j];
+	return contents[i][j];
+//	return contents[i * cols + j];
 }
 
 template <typename T>
 const T& Matrix<T>::operator()(int i, int j) const {
 	if (i < 0 || i >= rows || j < 0 || j >= cols)
 		throw std::out_of_range("Index out of range");
-	return contents[i * cols + j];
+	return contents[i][j];
+//	return contents[i * cols + j];
 }
 
 // Addition
@@ -64,6 +73,16 @@ Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
 	Matrix<T> result(rows, cols);
 	for (int i = 0; i < rows * cols; ++i)
 		result.contents[i] = contents[i] - other.contents[i];
+	return result;
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::operator-() const {
+//	if (rows != other.rows || cols != other.cols)
+//		throw std::invalid_argument("Matrix dimensions must match for subtraction");
+	Matrix<T> result(rows, cols);
+	for (int i = 0; i < rows * cols; ++i)
+		result.contents[i] = -contents[i];
 	return result;
 }
 

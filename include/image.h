@@ -2,27 +2,55 @@
 #define MATRIXPROJ_HEADER_IMAGE
 
 #include <iostream>
+//#include "../include/pixel.h"
+#include "../include/matrix.h"
 
 class Image{
 private:
-	Matrix<Pixel> imgmat;
+	Matrix<unsigned char> imgmat;
+	int width;
+	int height;
 public:
-	Image(std::string fname, BITDEPTH bd);
-	Image(BITMAP bd);
+	Image();							// default constructor
+	Image(const Image& img);			// copy constructor
 	
-	Image getNegative() const;
-	Image setBrightnessLvl(unsigned char lvl);
+	Image(std::string fname);
 	
-	void setNegative();
+	void save(std::string fname) const;
+	Image makeNegative() const;
+	Image setBrightnessLvl(unsigned char lvl) const;
+	Image setThreshold(unsigned char lvl) const;
+	unsigned char getPixel(int x, int y) const;
 	
 	void load(std::string fname);
-	void save(std::string fname);
+	void setPixel(int x, int y, unsigned char p);
 	
-	void getPixel(int x, int y);
-	void setPixel(int x, int y, Pixel p);
-	
-	void setBitDepth(BITDEPTH bd);
 };
+
+
+//class Image{
+//private:
+//	Matrix<Pixel> imgmat;
+//public:
+//	Image();
+//	Image(Image& img) : imgmat(img.imgmat) {};			// copy constructor
+//	Image(BITMAP bd);
+//	Image(std::string fname, BITDEPTH bd);
+//	void setBitDepth(BITDEPTH bd);
+//	
+//	void load(std::string fname);
+//	void save(std::string fname) const;
+//	
+//	
+//	Image getNegative() const;
+//	Image setBrightnessLvl(unsigned char lvl);
+//	Image setThreshold(unsigned char lvl);
+//	
+//	
+//	void getPixel(int x, int y);
+//	void setPixel(int x, int y, Pixel p);
+//	
+//};
 
 
 #endif
