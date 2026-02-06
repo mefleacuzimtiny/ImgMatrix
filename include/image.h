@@ -13,7 +13,7 @@ private:
 public:
 	Image();							// default constructor
 	Image(const Image& img);			// copy constructor
-	
+	Image(Matrix<unsigned char> mat);
 	Image(std::string fname);
 	
 	void save(std::string fname) const;
