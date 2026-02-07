@@ -8,8 +8,11 @@
 class Image{
 private:
 	Matrix<unsigned char> imgmat;
-	int width;
-	int height;
+	
+	std::string format;
+	int width, height;
+	int maxval;
+	
 public:
 	Image();							// default constructor
 	Image(const Image& img);			// copy constructor

@@ -58,8 +58,9 @@ void Image::save(const std::string& fpath) const {
 	// Write pixel data
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < width; ++j) {
-			unsigned char pixel = imgmat(i, j);
-			file.write(reinterpret_cast<char*>(&pixel), sizeof(pixel));
+			char pixel = imgmat(i, j);
+//			file.write(reinterpret_cast<char*>(&pixel), sizeof(pixel));
+			file.write((const char*) pixel, sizeof(pixel));
 		}
 	}
 	
@@ -74,7 +75,7 @@ void Image::save(const std::string& fpath) const {
 
 void Image::saveP2(const std::string& fpath) const {
 	std::cout << "File size is: " << width << " " << height << '\n';
-	std::ofstream file(fpath, std::ios::in);
+	std::ofstream file(fpath, std::ios::out);
 	if (!file) {
 		throw std::invalid_argument("Error: Cannot open file for writing\n");
 	}
@@ -88,7 +89,6 @@ void Image::saveP2(const std::string& fpath) const {
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < width; ++j) {
 			unsigned int pixel = imgmat(i, j);
-//			file.write(reinterpret_cast<char*>(&pixel), sizeof(pixel));
 			file << pixel << " ";
 		}
 		file << '\n';
@@ -98,31 +98,42 @@ void Image::saveP2(const std::string& fpath) const {
 		throw std::runtime_error("Error: Failed while writing image data\n");
 	}
 	
-	std::cout << "PGM saved successfully: " << width << "x" << height << "\n";
+	std::cout << "ASCII PGM saved successfully: " << width << "x" << height << "\n";
 }
 
 
 Image Image::makeNegative() const {
 	Image newimg(-imgmat);
+	newimg.logData();
 	return newimg;
 }
 
-//Image Image:: setBrightnessLvl(unsigned char lvl) const {
-//	
-//}
-//
-//Image Image::setThreshold(unsigned char lvl) const {
-//	
-//}
-//
-//
-//unsigned char Image::getPixel(int x, int y) const {
-//	
-//}
+Image Image::setBrightnessLvl(unsigned char lvl) const {
+	Image newimg((lvl/100) * imgmat);
+	newimg.logData();
+	return newimg;
+}
+
+Image Image::setThreshold(unsigned char lvl) const {
+	Image newimg(imgmat);
+	for (int i=0; i < height; i++) {
+		for (int j=0; j < width; j++) {
+			newimg.imgmat(i, j) = imgmat(i, j) < lvl? 0 : maxval;
+		}
+	}
+	newimg.logData();
+	return newimg;
+}
+
+
+unsigned char Image::getPixel(int x, int y) const {
+	return imgmat(y, x);
+}
 
 
 void Image::logData() const {
-	imgmat.print();
+//	imgmat.print();
+	imgmat.printAs<unsigned int>();
 	std::cout << "Image dimensions: " << width << " " << height << '\n';
 }
 
@@ -163,8 +174,6 @@ void Image::load(const std::string& fpath) {
 		throw std::invalid_argument("Error: Cannot open file\n");
 	}
 	
-	std::string format;
-	int maxval;
 	if (!(file >> format >> width >> height >> maxval)) {
 		throw std::invalid_argument("Error: Invalid PGM header\n");
 	}
@@ -178,21 +187,20 @@ void Image::load(const std::string& fpath) {
 	imgmat = Matrix<unsigned char>(height, width);
 	
 //	todo: in the future, replace this whole chunk with file >> imgmat;
-//	for (int i = 0; i < height; ++i) {
-//		for (int j = 0; j < width; ++j) {
-////			char pixelValue;
-////			if (!file.read(&pixelValue, sizeof(pixelValue))) {
-////				throw std::runtime_error("Error: Could not read pixel data at position (" + std::to_string(i) + ", " + std::to_string(j) + ")");
-////			}
-////			std::cout << static_cast<unsigned int>(pixelValue);
-////			imgmat(i, j) = static_cast<unsigned char>(pixelValue);
-//			try {
-//				imgmat(i, j) = readPixelAsByte(file);
-//			} catch (std::runtime_error e) {
-//				std::cout << e.what() << " at position (" + std::to_string(i) + ", " + std::to_string(j) + ")" << '\n';
-//			}
-//		}
-//	}
+	if (format == "P5") {
+		std::cout << "Format is P5" << '\n';
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
+
+				try {
+					imgmat(i, j) = readP5Pixel(file);
+				} catch (std::runtime_error e) {
+					std::cout << e.what() << " at position (" + std::to_string(i) + ", " + std::to_string(j) + ")" << '\n';
+					exit(1);
+				}
+			}
+		}
+	}
 	
 	if (format == "P2") {
 		std::cout << "Format is P2" << '\n';
@@ -203,6 +211,7 @@ void Image::load(const std::string& fpath) {
 					imgmat(i, j) = readP2Pixel(file);
 				} catch (std::runtime_error e) {
 					std::cout << e.what() << " at position (" + std::to_string(i) + ", " + std::to_string(j) + ")" << '\n';
+					exit(1);
 				}
 			}
 			std::cout << '\n';

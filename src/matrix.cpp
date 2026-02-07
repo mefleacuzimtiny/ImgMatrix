@@ -1,3 +1,5 @@
+//todo: make the matrix be instantiable from a raw string
+
 #ifndef MATRIX_CPP
 #define MATRIX_CPP
 
@@ -289,7 +291,17 @@ void Matrix<T>::print() const {
 	for (int i = 0; i < rows; ++i) {
 		for (int j = 0; j < cols; ++j)
 //			std::cout << std::setw(5) << (*this)(i, j) << " ";
-			std::cout << std::setw(5) << (unsigned int)(*this)(i, j) << " ";
+			std::cout << std::setw(5) << (*this)(i, j) << " ";
+		std::cout << "\n";
+	}
+}
+
+template <typename T>
+template <typename U>
+void Matrix<T>::printAs() const {
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j)
+			std::cout << std::setw(5) << static_cast<U>((*this)(i, j)) << " ";
 		std::cout << "\n";
 	}
 }

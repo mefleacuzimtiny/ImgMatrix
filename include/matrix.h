@@ -62,7 +62,7 @@ public:
 	Matrix operator*(const Matrix<T>& other) const;
 	Matrix operator*(float s) const;
 	
-	friend Matrix<T> operator*(float s, Matrix<T>& mat) {
+	friend Matrix<T> operator*(float s, const Matrix<T>& mat) {
 		return mat * s;
 	}
 	
@@ -71,6 +71,9 @@ public:
 	int getColCount() const;
 	
 	void print() const;
+	
+	template <typename U>
+	void printAs() const;
 };
 
 
