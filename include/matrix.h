@@ -47,33 +47,26 @@ public:
 	Matrix();
 	Matrix(int rows, int cols);
 	Matrix(const Matrix<T>& other);
-	Matrix<T>(std::initializer_list<std::initializer_list<T>> init_list);
+	Matrix(std::initializer_list<std::initializer_list<T>> init_list);
 	
 	~Matrix();
 	
-	friend void operator >> (std::istream& in, Matrix<T>& mat) {
-		for (int i=0; i < mat.rows; i++) {
-			for (int j=0; j < mat.cols; j++) {
-				in >> mat(i, j);
-			}
-		}
-	}
-	
+	friend std::istream& operator >> (std::istream& in, Matrix<T>& mat);
 	
 	T& operator()(int i, int j);
 
 	const T& operator()(int i, int j) const;
-	Matrix<T> operator+(const Matrix<T>& other) const;
-	Matrix<T> operator-(const Matrix<T>& other) const;
-	Matrix<T> operator-() const;
-	Matrix<T> operator*(const Matrix<T>& other) const;
-	Matrix<T> operator*(float s) const;
+	Matrix operator+(const Matrix<T>& other) const;
+	Matrix operator-(const Matrix<T>& other) const;
+	Matrix operator-() const;
+	Matrix operator*(const Matrix<T>& other) const;
+	Matrix operator*(float s) const;
 	
 	friend Matrix<T> operator*(float s, Matrix<T>& mat) {
 		return mat * s;
 	}
 	
-	Matrix<T> transpose() const;
+	Matrix transpose() const;
 	int getRowCount() const;
 	int getColCount() const;
 	

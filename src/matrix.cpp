@@ -96,14 +96,14 @@ Matrix<T>::~Matrix() {
 //========================================================== OPERATOR OVERLOADS ==========================================================
 
 
-template <typename T>
-void operator >> (std::istream& in, Matrix<T> mat) {
-	for (int i=0; i < mat.rows; i++) {
-		for (int j=0; j < mat.cols; j++) {
-			in >> mat(i, j);
-		}
-	}
-}
+//template <typename T>
+//void operator >> (std::istream& in, Matrix<T> mat) {
+//	for (int i=0; i < mat.rows; i++) {
+//		for (int j=0; j < mat.cols; j++) {
+//			in >> mat(i, j);
+//		}
+//	}
+//}
 
 //=========================== Element Access ===========================
 
@@ -288,7 +288,8 @@ template <typename T>
 void Matrix<T>::print() const {
 	for (int i = 0; i < rows; ++i) {
 		for (int j = 0; j < cols; ++j)
-			std::cout << std::setw(5) << (*this)(i, j) << " ";
+//			std::cout << std::setw(5) << (*this)(i, j) << " ";
+			std::cout << std::setw(5) << (unsigned int)(*this)(i, j) << " ";
 		std::cout << "\n";
 	}
 }
