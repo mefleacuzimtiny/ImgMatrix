@@ -8,29 +8,24 @@
 #include "../include/image.h"
 
 
-class BadPixelException : public std::runtime_error {
-	
-};
-
-
 //========================================================== CONSTRUCTORS ==========================================================
 
 Image::Image() :							// default constructor
-	imgmat(),
 	width(1),
-	height(1)
+	height(1),
+	imgmat()
 { }
 
 Image::Image(const Image& img):			// copy constructor
-	imgmat(img.imgmat),
 	width(img.width),
-	height(img.height) 
+	height(img.height), 
+	imgmat(img.imgmat)
 { }
 
-Image::Image(const Matrix<unsigned char>& mat):
-	imgmat(mat),
+Image::Image(const Matrix<unsigned char> mat):
 	width(mat.getColCount()),
-	height(mat.getRowCount())
+	height(mat.getRowCount()),
+	imgmat(mat)
 { }
 
 Image::Image(const std::string& fname) {
@@ -59,8 +54,8 @@ void Image::save(const std::string& fpath) const {
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < width; ++j) {
 			char pixel = imgmat(i, j);
-//			file.write(reinterpret_cast<char*>(&pixel), sizeof(pixel));
-			file.write((const char*) pixel, sizeof(pixel));
+			file.write(&pixel, sizeof(pixel));
+//			file.write((char *)&(imgmat(i, j)), sizeof(imgmat(i, j)));
 		}
 	}
 	
@@ -68,7 +63,7 @@ void Image::save(const std::string& fpath) const {
 		throw std::runtime_error("Error: Failed while writing image data\n");
 	}
 	
-	std::cout << "PGM saved successfully: " << width << "x" << height << "\n";
+	std::cout << "P5 PGM " << fpath << " saved successfully: " << width << "x" << height << "\n";
 }
 
 
@@ -98,19 +93,34 @@ void Image::saveP2(const std::string& fpath) const {
 		throw std::runtime_error("Error: Failed while writing image data\n");
 	}
 	
-	std::cout << "ASCII PGM saved successfully: " << width << "x" << height << "\n";
+	std::cout << "ASCII PGM " << fpath << " saved successfully: " << width << "x" << height << "\n";
 }
 
 
+//=========================== Image Operations ===========================
 Image Image::makeNegative() const {
-	Image newimg(-imgmat);
-	newimg.logData();
+	Image newimg(maxval - imgmat);
+//	newimg.logData();
 	return newimg;
 }
 
 Image Image::setBrightnessLvl(unsigned char lvl) const {
-	Image newimg((lvl/100) * imgmat);
-	newimg.logData();
+	// todo: lvl/100 resolves to zero because 
+//	Image newimg((lvl/100) * imgmat);
+//	Image newimg(lvl + imgmat);
+//	newimg.logData();
+	
+	Image newimg(imgmat);
+	for (int i=0; i < height; i++) {
+		for (int j=0; j < width; j++) {
+			long long int pixelValue = lvl + imgmat(i, j);
+			if (pixelValue >= maxval) { // wait... how do you detect the overflow if it's an unsigned char...'
+				newimg.imgmat(i, j) = maxval;
+			} else {
+				newimg.imgmat(i, j) = lvl + imgmat(i, j);
+			}
+		}
+	}
 	return newimg;
 }
 
@@ -121,9 +131,10 @@ Image Image::setThreshold(unsigned char lvl) const {
 			newimg.imgmat(i, j) = imgmat(i, j) < lvl? 0 : maxval;
 		}
 	}
-	newimg.logData();
+//	newimg.logData();
 	return newimg;
 }
+////////////////////////// Image Operations END //////////////////////////
 
 
 unsigned char Image::getPixel(int x, int y) const {
@@ -152,7 +163,7 @@ unsigned char readP5Pixel(std::ifstream& file) {
 		throw std::runtime_error("Error: Could not read pixel data");
 	}
 	
-	std::cout << static_cast<unsigned int>(pixelValue) << " ";
+//	std::cout << static_cast<unsigned int>(pixelValue) << " ";
 	return static_cast<unsigned char>(pixelValue);
 }
 
@@ -184,7 +195,7 @@ void Image::load(const std::string& fpath) {
 	
 	file.get();			// skips newline
 	
-	imgmat = Matrix<unsigned char>(height, width);
+	imgmat = Matrix<unsigned char>(height, width);				// BUG: THE = OPERATOR WAS NOT DEFINED IN THE MATRIX CLASS !!!
 	
 //	todo: in the future, replace this whole chunk with file >> imgmat;
 	if (format == "P5") {

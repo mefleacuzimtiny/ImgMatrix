@@ -42,6 +42,8 @@ protected:
 	
 private:
 	T** contents;
+	std::vector<std::vector<T>> data;
+	T* elements;
 	
 public:
 	Matrix();
@@ -57,13 +59,29 @@ public:
 
 	const T& operator()(int i, int j) const;
 	Matrix operator+(const Matrix<T>& other) const;
+	Matrix operator+(const T scalar) const;
 	Matrix operator-(const Matrix<T>& other) const;
+	Matrix operator-(const T scalar) const;
 	Matrix operator-() const;
 	Matrix operator*(const Matrix<T>& other) const;
-	Matrix operator*(float s) const;
+	Matrix operator*(const float scalar) const;
+	Matrix& operator=(const Matrix<T>& other);
 	
-	friend Matrix<T> operator*(float s, const Matrix<T>& mat) {
-		return mat * s;
+	friend Matrix<T> operator*(const float scalar, const Matrix<T>& mat) {
+		return mat * scalar;
+	}
+	friend Matrix<T> operator-(const T scalar, const Matrix<T>& mat) {		// ig not "mathematical", so to speak but for images, quite convenient
+//		return -mat + scalar;
+		Matrix<T> result(mat.rows, mat.cols);
+		for (int i=0; i < mat.rows; i++) {
+			for (int j=0; j < mat.cols; j++) {
+				result(i, j) = scalar - mat(i, j);
+			}
+		}
+		return result;
+	}
+	friend Matrix<T> operator+(const T scalar, const Matrix<T>& mat) {		// ig not "mathematical", so to speak but for images, quite convenient
+		return mat + scalar;
 	}
 	
 	Matrix transpose() const;

@@ -5,18 +5,29 @@
 //#include "../include/pixel.h"
 #include "../include/matrix.h"
 
+
+// Hypothesis: instead of having a base class image, which then splits into child classes ImagePGMP2, ImagePGMP5, and ImagePNG,
+// what if we had three small base classes ImagePGMP2, ImagePGMP5, and ImagePNG, which were combined into an Imageclass using multiple inheritance
+
+/*Advice from a friend on ways to handle the different image formats:
+" not very familiar with C++ patterns, so might be better to ask there but, I would either:
+Have an image class, internally it figures out types with a strategy pattern
+Have an abstract image class, the other types make classes out of it, users interface with the Image class, but underneath it's actually a concrete type "
+*/
+
+
 class Image{
 private:
-	Matrix<unsigned char> imgmat;
 	
 	std::string format;
 	int width, height;
 	int maxval;
+	Matrix<unsigned char> imgmat;
 	
 public:
 	Image();							// default constructor
 	Image(const Image& img);			// copy constructor
-	Image(const Matrix<unsigned char>& mat);		// generate image directly from matrix of pixels or unsigned chars
+	Image(const Matrix<unsigned char> mat);		// generate image directly from matrix of pixels or unsigned chars
 	Image(const std::string& fpath);				// generate image object from pgm file path
 	
 	void save(const std::string& fpath) const;
